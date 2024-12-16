@@ -7,7 +7,7 @@ import functools
 try:
     from beancount.core import account_types
 except ImportError:
-    from beancount.ccore import _core as account_types
+    from beancount.ccore import _core as account_types  # type: ignore
 
 
 class TestAccountTypes(unittest.TestCase):

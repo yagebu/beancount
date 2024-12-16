@@ -3,6 +3,8 @@
 See types below for details.
 """
 
+from __future__ import annotations
+
 __copyright__ = "Copyright (C) 2013-2017  Martin Blais"
 __license__ = "GNU GPLv2"
 
@@ -31,15 +33,11 @@ from beancount.core.display_context import DEFAULT_FORMATTER
 #   date: A datetime.date for the date that the lot was created at. There
 #      should always be a valid date.
 #   label: A string for the label of this lot, or None, if there is no label.
-Cost = NamedTuple(
-    "Cost",
-    [
-        ("number", Decimal),
-        ("currency", str),
-        ("date", datetime.date),
-        ("label", Optional[str]),
-    ],
-)
+class Cost(NamedTuple):
+    number: Decimal
+    currency: str
+    date: datetime.date
+    label: Optional[str]
 
 
 # A stand-in for an "incomplete" Cost, that is, a container all the data that
@@ -56,17 +54,13 @@ Cost = NamedTuple(
 #   label: A string for the label of this lot, or None if unspecified.
 #   merge: A boolean, true if this specification calls for averaging the units
 #      of this lot's currency, or False if unspecified.
-CostSpec = NamedTuple(
-    "CostSpec",
-    [
-        ("number_per", Optional[Decimal]),
-        ("number_total", Optional[Decimal]),
-        ("currency", Optional[str]),
-        ("date", Optional[datetime.date]),
-        ("label", Optional[str]),
-        ("merge", Optional[bool]),
-    ],
-)
+class CostSpec(NamedTuple):
+    number_per: Optional[Decimal]
+    number_total: Optional[Decimal]
+    currency: Optional[str]
+    date: Optional[datetime.date]
+    label: Optional[str]
+    merge: Optional[bool]
 
 
 def cost_to_str(cost, dformat, detail=True):
@@ -159,7 +153,9 @@ def to_string(pos, dformat=DEFAULT_FORMATTER, detail=True):
     return pos_str
 
 
-_Position = NamedTuple("_Position", [("units", Amount), ("cost", Cost)])
+class _Position(NamedTuple):
+    units: Amount
+    cost: Cost | CostSpec | None
 
 
 class Position(_Position):
@@ -176,7 +172,7 @@ class Position(_Position):
     # Allowed data types for lot.cost
     cost_types = (Cost, CostSpec)
 
-    def __new__(cls, units, cost=None):
+    def __new__(cls, units: Amount, cost: Cost | CostSpec | None = None) -> Position:
         assert isinstance(
             units, Amount
         ), "Expected an Amount for units; received '{}'".format(units)
@@ -185,7 +181,7 @@ class Position(_Position):
         ), "Expected a Cost for cost; received '{}'".format(cost)
         return _Position.__new__(cls, units, cost)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Compute a hash for this position.
 
         Returns:
@@ -197,7 +193,7 @@ class Position(_Position):
         """Render the position to a string.See to_string() for details."""
         return to_string(self, dformat, detail)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the position.
 
         Returns:

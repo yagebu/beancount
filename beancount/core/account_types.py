@@ -14,10 +14,13 @@ __copyright__ = "Copyright (C) 2014-2017  Martin Blais"
 __license__ = "GNU GPLv2"
 
 import re
-from collections import namedtuple
+from typing import NamedTuple
+from typing import TYPE_CHECKING
 
 from beancount.core import account
-from beancount.core.account import Account
+
+if TYPE_CHECKING:
+    from beancount.core.account import Account
 
 
 # A tuple that contains the names of the root accounts.
@@ -27,7 +30,13 @@ from beancount.core.account import Account
 #   equity: a str, the name of the prefix for the Equity subaccounts.
 #   income: a str, the name of the prefix for the Income subaccounts.
 #   expenses: a str, the name of the prefix for the Expenses subaccounts.
-AccountTypes = namedtuple("AccountTypes", "assets liabilities equity income expenses")
+class AccountTypes(NamedTuple):
+    assets: Account
+    liabilities: Account
+    equity: Account
+    income: Account
+    expenses: Account
+
 
 # Default values for root accounts.
 DEFAULT_ACCOUNT_TYPES = AccountTypes(

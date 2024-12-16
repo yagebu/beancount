@@ -15,12 +15,15 @@ __license__ = "GNU GPLv2"
 import re
 
 from decimal import Decimal
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, TYPE_CHECKING
 
 from beancount.core.display_context import DEFAULT_FORMATTER
 from beancount.core.number import ZERO
 from beancount.core.number import MISSING
 from beancount.core.number import D
+
+if TYPE_CHECKING:
+    from beancount.core.display_context import DisplayFormatter
 
 
 # A regular expression to match the name of a currency.
@@ -33,7 +36,9 @@ CURRENCY_RE = "|".join(
 )
 
 
-_Amount = NamedTuple("_Amount", [("number", Optional[Decimal]), ("currency", str)])
+class _Amount(NamedTuple):
+    number: Optional[Decimal]
+    currency: str
 
 
 class Amount(_Amount):
@@ -48,7 +53,7 @@ class Amount(_Amount):
     valid_types_number = (Decimal, type, type(None))
     valid_types_currency = (str, type, type(None))
 
-    def __new__(cls, number: Decimal, currency: str):
+    def __new__(cls, number: Decimal, currency: str) -> Amount:
         """Constructor from a number and currency.
 
         Args:
@@ -59,7 +64,7 @@ class Amount(_Amount):
         assert isinstance(currency, Amount.valid_types_currency), repr(currency)
         return _Amount.__new__(cls, number, currency)
 
-    def to_string(self, dformat=DEFAULT_FORMATTER):
+    def to_string(self, dformat: DisplayFormatter = DEFAULT_FORMATTER) -> str:
         """Convert an Amount instance to a printable string.
 
         Args:
@@ -75,7 +80,7 @@ class Amount(_Amount):
             number_fmt = str(self.number)
         return "{} {}".format(number_fmt, self.currency)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Convert an Amount instance to a printable string with the defaults.
 
         Returns:
@@ -85,7 +90,7 @@ class Amount(_Amount):
 
     __repr__ = __str__
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Boolean predicate returns true if the number is non-zero.
         Returns:
           A boolean, true if non-zero number.
@@ -117,15 +122,18 @@ class Amount(_Amount):
         """
         return hash((self.number, self.currency))
 
-    def __neg__(self):
+    def __neg__(self) -> Amount:
         """Return the negative of this amount.
         Returns:
           A new instance of Amount, with the negative number of units.
         """
+        assert isinstance(
+            self.number, Decimal
+        ), "Amount's number is not a Decimal instance: {}".format(self.number)
         return Amount(-self.number, self.currency)
 
     @staticmethod
-    def from_string(string):
+    def from_string(string: str) -> Amount:
         """Create an amount from a string.
 
         This is a miniature parser used for building tests.

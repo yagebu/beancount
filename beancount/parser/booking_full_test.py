@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 __copyright__ = "Copyright (C) 2015-2016  Martin Blais"
 __license__ = "GNU GPLv2"
 
@@ -2055,7 +2057,7 @@ class TestBookReductions(_BookingTestBase):
 
 
 class TestHasSelfReductions(cmptest.TestCase):
-    BM = collections.defaultdict(lambda: Booking.STRICT)
+    BM: dict[str, Booking] = collections.defaultdict(lambda: Booking.STRICT)
 
     @loader.load_doc()
     def test_has_self_reductions__simple(self, entries, _, __):

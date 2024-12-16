@@ -22,7 +22,7 @@ from beancount.utils import invariants
 try:
     from beancount.core import inventory
 except ImportError:
-    from beancount.ccore import _core as inventory
+    from beancount.ccore import _core as inventory  # type: ignore
 Inventory = inventory.Inventory
 MatchResult = inventory.MatchResult
 
